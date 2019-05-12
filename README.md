@@ -14,7 +14,7 @@ I changed the tags to store as an array (so it can be split by whitespace) and I
 
 Procfile set up to run on [heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#deploy-the-app)
 
-# Lab 5 part 1
+# Lab 5 part 2
 For this assignment, I added user authentication to my CRUD api server and front end react+reduct online application. 
 
 ### What worked 
