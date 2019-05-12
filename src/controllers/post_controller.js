@@ -1,81 +1,75 @@
 import Post from '../models/post_model';
+import User from '../models/user_model';
 
-const cleanPosts = (posts) => {
-  return posts.map((post) => {
-    return {
-      id: post._id, title: post.title, tags: post.tags.toString(), cover_url: post.cover_url,
-    };
-  });
-};
-
+// used the following link provided in the lab spec to familiarize myself
+// with populating our schema https://mongoosejs.com/docs/populate.html
 export const createPost = (req, res) => {
-  const post = new Post();
-  post.title = req.body.title;
-  // split seperates multiple tags
-  post.tags = req.body.tags.split(' ');
-  post.content = req.body.content;
-  post.cover_url = req.body.cover_url;
-  post.comments = req.body.comments;
-  post.save()
-    .then((result) => {
-      res.json({ message: 'Created a post!' });
-    })
-    .catch((error) => {
-      res.status(500).json({ error });
-    });
-};
-
-export const deletePost = (req, res) => {
-  Post.findById(req.params.id)
-    .then((post) => {
-      post.remove()
-        .then(() => {
-          res.json({ message: 'Deleted post' });
+  User.findOne({ _id: req.user.id })
+    .then((data) => {
+      const post = new Post();
+      post.title = req.body.title;
+      post.tags = req.body.tags;
+      post.content = req.body.content;
+      post.cover_url = req.body.cover_url;
+      post.username = data.username;
+      post.save()
+        .then((response) => {
+          console.log(response);
+          res.send(response);
         })
-        .catch((error) => {
-          res.json({ error });
+        .catch((err) => {
+          if (err) {
+            res.sendStatus(500);
+          }
         });
     })
-    .catch((error) => {
-      res.json({ error });
-    });
-};
-
-export const updatePost = (req, res) => {
-  Post.findByIdAndUpdate(req.params.id,
-    {
-      title: req.body.title,
-      tags: req.body.tags.split(' '),
-      content: req.body.content,
-      cover_url: req.body.cover_url,
-      comments: req.body.comments,
-    })
-    .then((result) => {
-      res.json({ message: 'Updating post!' });
-    })
-    .catch((error) => {
-      res.json({ error });
+    .catch((err) => {
+      res.send(err);
     });
 };
 
 export const getPost = (req, res) => {
-  Post.findById(req.params.id)
-    .then((post) => {
-      res.json({
-        title: post.title, tags: post.tags.join(' '), content: post.content, cover_url: post.cover_url, comments: post.comments,
-      });
+  Post.findOne({ _id: req.params.id })
+    .then((data) => {
+      res.send(data);
     })
-    .catch((error) => {
-      res.json({ error });
+    .catch((err) => {
+      res.send(err);
+    });
+};
+
+export const updatePost = (req, res) => {
+  Post.findByIdAndUpdate(req.params.id, {
+    title: req.body.title,
+    content: req.body.content,
+    tags: req.body.tags,
+    cover_url: req.body.cover_url,
+  }, { new: true })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      res.status(500).json({ err });
+    });
+};
+
+export const deletePost = (req, res) => {
+  Post.findByIdAndRemove(req.params.id)
+    .then((response) => {
+      res.send(response);
+    })
+    .catch((err) => {
+      if (err) {
+        res.status(500).json({ err });
+      }
     });
 };
 
 export const getPosts = (req, res) => {
-  Post.find()
-    .then((posts) => {
-      res.json(cleanPosts(posts));
-    })
-    .catch((error) => {
-      res.json({ error });
+  Post.find({}).then((data) => {
+    res.send(data);
+  })
+    .catch((err) => {
+      res.send(err);
     });
 };

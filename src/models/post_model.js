@@ -7,9 +7,14 @@ const PostSchema = new Schema({
   content: String,
   cover_url: String,
   comments: String,
+  author: { type: Schema.Types.ObjectId, ref: 'User' }, // author is user id
+  username: String, // username is author's chosen screen name
+}, {
+  toJSON: {
+    virtuals: true,
+  },
 });
 
-// create PostModel class from schema
 const PostModel = mongoose.model('Post', PostSchema);
 
 export default PostModel;
